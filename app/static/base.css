@@ -1,0 +1,9 @@
+
+main {
+    margin: 48px 0;
+}
+
+textarea {
+    resize: none;
+    min-height: 96px;
+}
