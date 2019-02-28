@@ -7,17 +7,37 @@
   <meta name="author" content="">
   <title>PYMK</title>
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}">
+  <meta name="google-signin-client_id" content="{{ client_id }}">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script src="{{ url_for('static', filename='base.js') }}" async defer></script>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-primary">
-        <a class="navbar-brand" href="/">pymk</a>
-    </nav>
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/">P-y–m—k</a>
+      {% if request.path != url_for('users.login') %}
+      <ul class="nav navbar-nav navbar-right">
+      {% if current_user.is_authenticated %}
+        <!-- <li>{{ current_user.name }}</li> -->
+        <div  style="display: none" class="g-signin2"></div>
+        <li><a href="#" onclick="signOut();">Sign out</a></li>
+        <li><img width=32 height=32 style="border-radius: 50%; margin-left: 16px;" src="{{ current_user.picture }}"/></li>
+      {% else %}
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+      {% endif %}
+      </ul>
+      {% endif %}
+    </div>
+  </nav>
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
 </body>
 </html>

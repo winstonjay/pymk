@@ -1,4 +1,7 @@
-
+html, body {
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: lighter;
+}
 main {
     margin: 48px 0;
 }
@@ -6,4 +9,17 @@ main {
 textarea {
     resize: none;
     min-height: 96px;
+}
+
+nav .navbar-nav li, nav .navbar-nav li a {
+    color: white !important;
+}
+
+.navbar-nav {
+    flex-direction: row;
+    align-items: center;
+}
+
+.bg-primary {
+    background-color: #304FFE !important;
 }

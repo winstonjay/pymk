@@ -1,10 +1,13 @@
+# third-party modules
 from flask import Flask
 from flask import render_template
+from flask import request
 
+# local modules
 from models import db
-
 from nodes import node_bp
 from users import user_bp
+from users import login_manager
 
 application = Flask(__name__)
 
@@ -21,9 +24,17 @@ with application.app_context():
 application.register_blueprint(node_bp)
 application.register_blueprint(user_bp)
 
+# init login services
+login_manager.init_app(application)
+
+@application.context_processor
+def inject_vars():
+    return dict(client_id=application.config.get('GA_CLIENT_ID'))
+
 @application.route('/')
-def home():
+def index():
     return render_template('home.html')
+
 
 if __name__ == '__main__':
     application.run(debug=True)
