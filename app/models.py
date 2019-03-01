@@ -1,43 +1,31 @@
 import uuid
 import hashlib
-import datetime
+from datetime import datetime
 
 from flask import jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-# db initialised with application in application.py
+from utils import Serializable
+from utils import unpack_kwargs
+
+# We initialise with application in application.py
 db = SQLAlchemy()
-
-class Serializable(object):
-    'Helper class for serializing SQLAlchemy objects'
-
-    def dict(self):
-        cols = self.__table__.columns
-        return {c.name: getattr(self, c.name) for c in cols}
-
-    def json(self):
-        return jsonify(self.dict())
-
-
-# kwargs from request.form seem to be unpacking single args as
-# lists. Check if this is the case and return the args unpacked.
-def unpack_kwargs(func):
-    def wrapper(*args, **kwargs):
-        _kwargs = dict((k, v[0] if isinstance(v, (list,)) else v)
-                        for k, v in kwargs.items())
-        func(*args, **_kwargs)
-    return wrapper
 
 
 class User(db.Model, Serializable):
+    '''User class defines SQLAlchemy model for user functionality within
+    the site. After validation via Google, users are either made or fetched
+    with get_or_create. Methods required for the 'flask_login' library are
+    implemented.'''
     __tablename__ = 'user'
     user_id = db.Column(db.String(32), primary_key=True)
     ga_id = db.Column(db.String(32), unique=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
+    first_name = db.Column(db.String(50), nullable=True)
     name = db.Column(db.String(100), nullable=True)
     picture = db.Column(db.String(200), nullable=True)
     active = db.Column(db.Boolean, default=False)
-    created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+    created = db.Column(db.DateTime, default=datetime.utcnow())
     nodes = db.relationship('Node', backref='user', lazy=True)
 
     @unpack_kwargs
@@ -78,25 +66,28 @@ class User(db.Model, Serializable):
 
 
 class Node(db.Model, Serializable):
+    '''Node class defines SQLALchemy model that forms the main
+    datastructure of the application. '''
     __tablename__ = 'node'
     node_id = db.Column(db.String(40), primary_key=True)
     parent_id = db.Column(db.String(40))
     user_id = db.Column(db.String(32), db.ForeignKey('user.user_id'), nullable=False)
-    content = db.Column(db.String(2048), nullable=False)
+    content = db.Column(db.Text(), nullable=False)
     meeting = db.Column(db.DateTime, nullable=False)
-    created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
-    db.ForeignKeyConstraint(['invoice_id', 'ref_num'], ['invoice.invoice_id', 'invoice.ref_num'])
-
+    created = db.Column(db.DateTime, default=datetime.utcnow())
 
     @unpack_kwargs
     def __init__(self, **kwargs):
-        self.node_id = sha1hash(kwargs['parent_id'], kwargs['user_id'])
-        kwargs['meeting'] = datetime.datetime(*list(map(int, kwargs['meeting'].split('-'))))
+        parent = Node.query.filter_by(node_id=kwargs['parent_id']).first()
+        if parent is None:
+            raise ValueError('unknown parent node')
+        if parent.user.user_id == kwargs['user_id']:
+            raise ValueError('self-referential user connection')
+        self.node_id = self.generate_id(**kwargs)
+        self.meeting = datetime.strptime(kwargs['meeting'], '%Y-%m-%d')
         super(Node, self).__init__(**kwargs)
 
-
-def sha1hash(self, *args):
-    'return sha1 hexdigest of joined args'
-    return hashlib.sha1(cat(args).encode('utf-8')).hexdigest()
-
-cat = ''.join
+    def generate_id(self, **kwargs):
+        'return sha1 hexdigest of joined args'
+        z = ''.join(kwargs['parent_id'], kwargs['user_id']).encode('utf-8')
+        return hashlib.sha1(z).hexdigest()

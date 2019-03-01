@@ -5,7 +5,7 @@
         <div class="col-md-6">
 
             <h1>You & {{ parent.user.name }}</h1>
-            <form>
+            <form action="/nodes/register" method="POST">
                 <div class="form-group">
                     <label><strong>When did you meet?</strong></label>
                     <input name="meeting" type="date" class="form-control">
