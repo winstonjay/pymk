@@ -10,9 +10,9 @@ from flask_login import current_user
 
 from sqlalchemy.exc import IntegrityError
 
-from models import db
-from models import Node
-from utils import debugging
+from .models import db
+from .models import Node
+from .utils import debugging
 
 node_bp = Blueprint('nodes', __name__, url_prefix='/nodes')
 

@@ -13,10 +13,10 @@ from flask_login import logout_user
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-from models import db
-from models import User
-from models import Node
-from utils import debugging
+from .models import db
+from .models import User
+from .models import Node
+from .utils import debugging
 
 user_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -67,4 +67,4 @@ def register_user():
 @debugging
 @user_bp.route('/list')
 def list_users():
-    return jsonify([u.dict() for u in User.query.all()])
+    return jsonify([u._dict() for u in User.query.all()])

@@ -115,4 +115,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# extra
 *.db
+TODO.md
+sampledata

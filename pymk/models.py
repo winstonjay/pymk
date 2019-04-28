@@ -5,8 +5,8 @@ from datetime import datetime
 from flask import jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-from utils import Serializable
-from utils import unpack_kwargs
+from .utils import Serializable
+from .utils import unpack_kwargs
 
 # We initialise with application in application.py
 db = SQLAlchemy()
@@ -89,5 +89,5 @@ class Node(db.Model, Serializable):
 
     def generate_id(self, **kwargs):
         'return sha1 hexdigest of joined args'
-        z = ''.join(kwargs['parent_id'], kwargs['user_id']).encode('utf-8')
+        z = ''.join([kwargs['parent_id'], kwargs['user_id']]).encode('utf-8')
         return hashlib.sha1(z).hexdigest()

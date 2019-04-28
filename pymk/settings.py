@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SECRET_KEY = os.getenv('APP_SECRET_KEY')
+DEBUG = True
 
 # Database - SQL Alchemy
 SQLALCHEMY_DATABASE_URI = 'sqlite:///model.db'
